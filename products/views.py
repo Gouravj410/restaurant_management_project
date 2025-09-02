@@ -2,16 +2,16 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Item
 from .serializers import ItemSerializer
+from account.permissions import IsManagerOrAdminOrReadOnly   # ✅ import our custom permission
 
-'''
-NOTE: Conside this as a reference and follow this same coding structure or format to work on you tasks
-'''
 
 # Create your views here.
 class ItemView(APIView):
+    permission_classes = [IsAuthenticated, IsManagerOrAdminOrReadOnly]   # ✅ add permission
 
     def get(self, request):
         items = Item.objects.all()
