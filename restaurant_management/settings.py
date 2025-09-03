@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     "products",
     "orders",
     "home",
+    "django_celery_results",
+    "django_celery_beat",
 ]
 
 AUTH_USER_MODEL = "account.User"
@@ -128,3 +130,16 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Celery Configuration
+CELERY_BROKER_URL = "memory://"
+CELERY_RESULT_BACKEND = "django-db"
+
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'generate-daily-sales-report': {
+        'task': 'orders.tasks.generate_sales_report',
+        'schedule': crontab(hour=23, minute=59),
+    },
+}
