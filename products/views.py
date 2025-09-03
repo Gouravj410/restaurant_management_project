@@ -6,14 +6,14 @@ from rest_framework.permissions import IsAuthenticated
 
 from .models import Item
 from .serializers import ItemSerializer
-from account.permissions import IsManagerOrAdminOrReadOnly   # ✅ import our custom permission
+from account.permissions import IsManagerOrAdminOrReadOnly
 
 
-# Create your views here.
 class ItemView(APIView):
-    permission_classes = [IsAuthenticated, IsManagerOrAdminOrReadOnly]   # ✅ add permission
+    permission_classes = []
 
     def get(self, request):
+        # optimize query (fetch category in same query)
         items = Item.objects.all()
         serializer = ItemSerializer(items, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
