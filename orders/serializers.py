@@ -7,19 +7,18 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate_status(self, value):
-        """Prevent invalid status jumps (e.g., Pending → Served directly)."""
-        instance = self.instance  
+        """Prevent invalid status jumps."""
+        instance = self.instance  # existing order
 
-        if instance:  # means we are updating an existing order
+        if instance:  # only on update
             valid_transitions = {
                 'Pending': ['Preparing'],
                 'Preparing': ['Ready'],
                 'Ready': ['Served'],
-                'Served': [],  # no further change
+                'Served': [],
             }
             if value not in valid_transitions[instance.status]:
                 raise serializers.ValidationError(
                     f"Invalid status change: {instance.status} → {value}"
                 )
-
         return value

@@ -3,12 +3,6 @@ from rest_framework.response import Response
 from .models import Order
 from .serializers import OrderSerializer
 
-# List all orders OR create a new order
-class OrderListCreateView(generics.ListCreateAPIView):
-    queryset = Order.objects.all()
-    serializer_class = OrderSerializer
-
-
 # Update order status step by step
 class OrderStatusUpdateView(generics.UpdateAPIView):
     queryset = Order.objects.all()
@@ -18,6 +12,7 @@ class OrderStatusUpdateView(generics.UpdateAPIView):
         order = self.get_object()
         new_status = request.data.get("status")
 
+        # Allowed transitions
         allowed_transitions = {
             "Pending": ["Preparing"],
             "Preparing": ["Ready"],

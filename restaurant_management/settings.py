@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     "django_celery_beat",
 ]
 
-AUTH_USER_MODEL = "account.User"
+AUTH_USER_MODEL = 'account.User'
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
