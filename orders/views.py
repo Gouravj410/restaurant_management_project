@@ -1,13 +1,36 @@
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics, status
+from rest_framework.response import Response
 from .models import Order
 from .serializers import OrderSerializer
-from account.permissions import IsWaiterOnly
 
-class OrderViewSet(viewsets.ModelViewSet):
+# List all orders OR create a new order
+class OrderListCreateView(generics.ListCreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    permission_classes = [IsAuthenticated, IsWaiterOnly]
 
-    def perform_create(self, serializer):
-        serializer.save(waiter=self.request.user)
+
+# Update order status step by step
+class OrderStatusUpdateView(generics.UpdateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+    def update(self, request, *args, **kwargs):
+        order = self.get_object()
+        new_status = request.data.get("status")
+
+        allowed_transitions = {
+            "Pending": ["Preparing"],
+            "Preparing": ["Ready"],
+            "Ready": ["Served"],
+            "Served": [],
+        }
+
+        if new_status not in allowed_transitions[order.status]:
+            return Response(
+                {"error": f"Invalid status transition from {order.status} → {new_status}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        order.status = new_status
+        order.save()
+        return Response(OrderSerializer(order).data, status=status.HTTP_200_OK)
